@@ -1,0 +1,7 @@
+{
+    "files.exclude": {
+        "**/*.ignore": true,
+        "**/*.bak": true,
+        "**/*.vhd.bak": true
+    }
+}
