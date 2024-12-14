@@ -41,7 +41,7 @@ begin
         end if ;
     end process ; -- writing_data_process
 
-    read_data0 <= register_file(to_integer(unsigned(read_addr0)));
-    read_data1 <= register_file(to_integer(unsigned(read_addr1)))
+    read_data1 <= register_file(to_integer(unsigned(read_addr1)));
+    read_data2 <= register_file(to_integer(unsigned(read_addr2)));
 
 end register_file_arch ; -- register_file_arch
