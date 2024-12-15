@@ -36,41 +36,52 @@ BEGIN
             CASE OP IS
                 WHEN "000" => -- NOT
                     temp_result <= NOT A;
+
+                    REPORT "NOT: " & INTEGER'image(to_integer(unsigned(temp_result)));
                     temp_carry <= '0';
 
                 WHEN "001" => -- INC
                     full_sum := ('0' & unsigned(A)) + 1;
                     temp_result <= STD_LOGIC_VECTOR(full_sum(15 DOWNTO 0));
+                    REPORT "INC: " & INTEGER'image(to_integer(unsigned(temp_result)));
                     temp_carry <= full_sum(16);
 
-                WHEN "010" => -- ADD
+                WHEN "010" => -- ADD    
                     full_sum := ('0' & unsigned(A)) + ('0' & unsigned(B));
+                    REPORT "full_sum: " & INTEGER'image(to_integer(unsigned(full_sum)));
                     temp_result <= STD_LOGIC_VECTOR(full_sum(15 DOWNTO 0));
                     temp_carry <= full_sum(16);
 
                 WHEN "011" => -- SUB
                     full_diff := SIGNED(('0' & A)) - SIGNED(('0' & B));
+                    REPORT "full_diff: " & INTEGER'image(to_integer(unsigned(full_diff)));
                     temp_result <= STD_LOGIC_VECTOR(full_diff(15 DOWNTO 0));
                     temp_carry <= '0'; -- Borrow flag can be added if required.
 
                 WHEN "100" => -- AND
                     temp_result <= A AND B;
+                    REPORT "AND: " & INTEGER'image(to_integer(unsigned(temp_result)));
                     temp_carry <= '0';
 
                 WHEN "101" => -- OP1
                     temp_result <= A;
+                    REPORT "OP1: " & INTEGER'image(to_integer(unsigned(temp_result)));
                     temp_carry <= '0';
 
                 WHEN "110" => -- OP2
                     temp_result <= B;
+                    REPORT "OP2: " & INTEGER'image(to_integer(unsigned(temp_result)));
                     temp_carry <= '0';
 
                 WHEN "111" => -- SetC
                     temp_result <= (OTHERS => '0');
+                    REPORT "SetC: " & INTEGER'image(to_integer(unsigned(temp_result)));
                     temp_carry <= '1';
 
                 WHEN OTHERS =>
                     temp_result <= (OTHERS => '0');
+                    REPORT "NO OPERATION: " & INTEGER'image(to_integer(unsigned(temp_result)));
+
                     temp_carry <= '0';
             END CASE;
 
