@@ -1,4 +1,3 @@
-# Load canceled
 # Compile of alu.vhd was successful.
 # Compile of alu_flage_tb.vhd was successful.
 # Compile of alu_tb.vhd was successful.
@@ -12,8 +11,8 @@
 # Compile of IM.vhd was successful.
 # Compile of IM_tb.vhd failed with 2 errors.
 # Compile of MIPS.vhd failed with 3 errors.
-# Compile of register_file.vhd was successful.
+# Compile of register_file.vhd failed with 5 errors.
 # Compile of sign_extender.vhd was successful.
 # Compile of stack.vhd was successful.
 # Compile of stack_tb.vhd was successful.
-# 17 compiles, 4 failed with 12 errors.
+# 17 compiles, 5 failed with 17 errors.

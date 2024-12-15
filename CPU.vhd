@@ -1,65 +1,63 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL; 
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
-entity CPU is
-    port (
-        clk, reset,pc : in std_logic;                    
-        alu_out : out std_logic_vector(15 downto 0);                
-        carry : out std_logic;
-        negative : out STD_LOGIC;
-        zero : out STD_LOGIC            
-);
-end CPU;
+ENTITY CPU IS
+    PORT (
+        clk, reset, pc : IN STD_LOGIC;
+        alu_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        carry : OUT STD_LOGIC;
+        negative : OUT STD_LOGIC;
+        zero : OUT STD_LOGIC
+    );
+END CPU;
 
-architecture Behavioral of CPU is
+ARCHITECTURE Behavioral OF CPU IS
 
     -- CU signals
-    signal instr : std_logic_vector(15 downto 0);
-    signal signals : std_logic_vector(24 downto 0);
-    signal rd1 : std_logic_vector(15 downto 0);
-    signal rd2 : std_logic_vector(15 downto 0);
-    
-
+    SIGNAL instr : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL signals : STD_LOGIC_VECTOR(24 DOWNTO 0);
+    SIGNAL rd1 : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL rd2 : STD_LOGIC_VECTOR(15 DOWNTO 0);
     -- declarations
-    component IM is
-        port (
-            clk      : in std_logic;
+    COMPONENT IM IS
+        PORT (
+            clk : IN STD_LOGIC;
             -- load     : in std_logic; 
             -- program  : in std_logic_vector(10*16-1 downto 0); 
-            pc  : in std_logic_vector(15 downto 0); 
-            reset: in std_logic;
-            instruction : out std_logic_vector(15 downto 0) 
+            pc : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            reset : IN STD_LOGIC;
+            instruction : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
-        end component IM;
+    END COMPONENT IM;
 
-    component CU is
-        port (
-            clk     : in std_logic;                      
-            reset   : in std_logic;                      
-            opcode  : in std_logic_vector(4 downto 0);  
-            signals : out std_logic_vector(24 downto 0)   
+    COMPONENT CU IS
+        PORT (
+            clk : IN STD_LOGIC;
+            reset : IN STD_LOGIC;
+            opcode : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+            signals : OUT STD_LOGIC_VECTOR(24 DOWNTO 0)
         );
-    
-    end component CU;
 
-    component register_file is
-        port (
-            clk        : in  STD_LOGIC;
-            reset      : in  STD_LOGIC;
-            reg_write  : in  STD_LOGIC;
-            
-            write_addr : in  STD_LOGIC_VECTOR(2 downto 0);
-            write_data : in  STD_LOGIC_VECTOR(15 downto 0);
-            read_addr1 : in  STD_LOGIC_VECTOR(2 downto 0);
-            read_addr2 : in  STD_LOGIC_VECTOR(2 downto 0);
-            
-            read_data1 : out STD_LOGIC_VECTOR(15 downto 0);
-            read_data2 : out STD_LOGIC_VECTOR(15 downto 0)
+    END COMPONENT CU;
+
+    COMPONENT register_file IS
+        PORT (
+            clk : IN STD_LOGIC;
+            reset : IN STD_LOGIC;
+            reg_write : IN STD_LOGIC;
+
+            write_addr : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            write_data : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            read_addr1 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            read_addr2 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+
+            read_data1 : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+            read_data2 : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
-    end component register_file;
+    END COMPONENT register_file;
 
-    component ALU is
+    COMPONENT ALU IS
         PORT (
             clk : IN STD_LOGIC;
             reset : IN STD_LOGIC;
@@ -71,58 +69,50 @@ architecture Behavioral of CPU is
             negative : OUT STD_LOGIC;
             zero : OUT STD_LOGIC
         );
-    end component ALU;
+    END COMPONENT ALU;
 
-    begin
+BEGIN
 
-    instruction_mem : IM 
-    port map (
-        clk         => clk,
-        pc          => (others => '0'),
-        reset       => reset,
-        instruction => instr           
+    instruction_mem : IM
+    PORT MAP(
+        clk => clk,
+        pc => (OTHERS => '0'),
+        reset => reset,
+        instruction => instr
     );
 
-    control_unit : CU 
-        port map (
-            clk     => clk,
-            reset   => reset,
-            opcode  => instr(15 downto 11), 
-            signals => signals             
-        );
+    control_unit : CU
+    PORT MAP(
+        clk => clk,
+        reset => reset,
+        opcode => instr(15 DOWNTO 11),
+        signals => signals
+    );
 
+    rf : register_file
+    PORT MAP(
+        clk => clk,
+        reset => reset,
+        reg_write => signals(17),
 
+        write_addr => instr(10 DOWNTO 8),
+        write_data => (OTHERS => '0'),
+        read_addr1 => instr(7 DOWNTO 5),
+        read_addr2 => instr(4 DOWNTO 2),
 
-    rf : register_file 
-        port map(
-            clk        => clk,
-            reset      => reset,
-            reg_write  => signals(17),
-        
-            write_addr => instr(10 downto 8),
-            write_data => (others => '0'), 
-            read_addr1 => instr(7 downto 5),
-            read_addr2 => instr(4 downto 2),
-        
-            read_data1 => rd1,
-            read_data2 => rd2
-    );        
-    
-
-    alu_inst : ALU 
-        port map(
-            clk => clk,
-            reset => reset,
-            OP => signals(13 downto 11),
-            A => rd1,
-            B => rd2,
-            result =>alu_out,
-            carry => carry,
-            negative =>negative,
-            zero =>zero
-        );
-
-    
-
-
-    end Behavioral;
+        read_data1 => rd1,
+        read_data2 => rd2
+    );
+    alu_inst : ALU
+    PORT MAP(
+        clk => clk,
+        reset => reset,
+        OP => signals(13 DOWNTO 11),
+        A => rd1,
+        B => rd2,
+        result => alu_out,
+        carry => carry,
+        negative => negative,
+        zero => zero
+    );
+END Behavioral;
