@@ -1,2 +1,19 @@
-# Reading D:/Apps/ModelSim/modelsim_ase/tcl/vsim/pref.tcl
-# OpenFile D:/arch/porject/part1/flages.vhd
+# Load canceled
+# Compile of alu.vhd was successful.
+# Compile of alu_flage_tb.vhd was successful.
+# Compile of alu_tb.vhd was successful.
+# Compile of CPU.vhd was successful.
+# Compile of CU.vhd was successful.
+# Compile of CU_tb.vhd was successful.
+# Compile of D_MEM.vhdl failed with 6 errors.
+# Compile of flags.vhd was successful.
+# Compile of flags_tb.vhd was successful.
+# Compile of FU.vhdl failed with 1 errors.
+# Compile of IM.vhd was successful.
+# Compile of IM_tb.vhd failed with 2 errors.
+# Compile of MIPS.vhd failed with 3 errors.
+# Compile of register_file.vhd was successful.
+# Compile of sign_extender.vhd was successful.
+# Compile of stack.vhd was successful.
+# Compile of stack_tb.vhd was successful.
+# 17 compiles, 4 failed with 12 errors.

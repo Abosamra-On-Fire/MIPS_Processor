@@ -1,0 +1,71 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL; 
+
+entity CPU is
+    port (
+        clk, reset,pc : in std_logic;                    
+        alu_out : out std_logic_vector(15 downto 0);                
+        carry : out std_logic;
+        negative : out STD_LOGIC;
+        zero : out STD_LOGIC            
+);
+end CPU;
+
+architecture Behavioral of CPU is
+
+    -- CU signals
+    signal instr : std_logic_vector(15 downto 0);
+    signal signals : std_logic_vector(24 downto 0);
+    signal rd1 : std_logic_vector(15 downto 0);
+    signal rd2 : std_logic_vector(15 downto 0);
+    
+    begin 
+    IM: entity work.IM 
+        port map (
+            clk         => clk,
+            pc          => (others => '0'),     
+            instruction => instr           
+        );
+
+    control: entity work.CU
+        port map (
+            clk     => clk,
+            reset   => reset,
+            opcode  => instr(15 downto 13), 
+            signals => signals             
+        );
+
+
+    component register_file is 
+        port (
+            clk        => clk,
+            reset      => reset,
+            reg_write  => signals(17),
+        
+            write_addr => instr(7 downto 5),
+            write_data => (others => '0'), 
+            read_addr1 => instr(10 downto 8),
+            read_addr2 => instr(13 downto 11),
+        
+            read_data1 => rd1,
+            read_data2 => rd2
+          );        
+    end component register_file;
+
+
+    component ALU is
+        PORT (
+            clk => clk,
+            reset => reset,
+            OP => signals(13 downto 11),
+            A => rd1,
+            B => rd2,
+            result =>alu_out,
+            carry => carry,
+            negative =>negative,
+            zero =>zero
+        );
+    end component ALU;
+
+end Behavioral;

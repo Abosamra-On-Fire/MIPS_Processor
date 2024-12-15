@@ -8,10 +8,10 @@ entity register_file is
     reset      : in  STD_LOGIC;
     reg_write  : in  STD_LOGIC;
     
-    write_addr : in  STD_LOGIC_VECTOR(3 downto 0);
+    write_addr : in  STD_LOGIC_VECTOR(2 downto 0);
     write_data : in  STD_LOGIC_VECTOR(15 downto 0);
-    read_addr1 : in  STD_LOGIC_VECTOR(3 downto 0);
-    read_addr2 : in  STD_LOGIC_VECTOR(3 downto 0);
+    read_addr1 : in  STD_LOGIC_VECTOR(2 downto 0);
+    read_addr2 : in  STD_LOGIC_VECTOR(2 downto 0);
     
     read_data1 : out STD_LOGIC_VECTOR(15 downto 0);
     read_data2 : out STD_LOGIC_VECTOR(15 downto 0)
@@ -28,12 +28,28 @@ architecture register_file_arch of register_file is
 
 begin
 
+
+    -- hard code register_file(0) to 0
+    -- hard code register_file(1) to 1
+
+    -- register_file(0) <= "0000000000000101";
+    -- register_file(1) <= "0000000000000111";
+    -- register_file(1) <= "0000000000000111";
+    -- register_file(1) <= "0000000000000111";
+    -- register_file(1) <= "0000000000000111";
+    -- register_file(1) <= "0000000000000111";
+    -- register_file(1) <= "0000000000000111";
+
+
+
     writing_data_process : process( clk, reset )
     begin
         if reset = '1' then
             reset_loop : for i in 0 to NUM_REGISTERS - 1 loop
                 register_file(i) <= (others => '0');
             end loop ; -- reset_loop
+                read_data1 <= (others => '0');
+                read_data2 <= (others => '0');
         elsif rising_edge(clk) then
             if reg_write = '1' then
                 register_file(to_integer(unsigned(write_addr))) <= write_data;
