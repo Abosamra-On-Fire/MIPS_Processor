@@ -4,7 +4,7 @@ USE IEEE.NUMERIC_STD.ALL;
 
 ENTITY CPU IS
     PORT (
-        clk, reset, pc : IN STD_LOGIC;
+        clk, reset : IN STD_LOGIC;
         alu_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         carry : OUT STD_LOGIC;
         negative : OUT STD_LOGIC;
@@ -15,6 +15,7 @@ END CPU;
 ARCHITECTURE Behavioral OF CPU IS
 
     -- CU signals
+    signal pc: std_logic_vector(15 downto 0);
     SIGNAL instr : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL signals : STD_LOGIC_VECTOR(24 DOWNTO 0);
     SIGNAL rd1 : STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -40,6 +41,16 @@ ARCHITECTURE Behavioral OF CPU IS
         );
 
     END COMPONENT CU;
+
+    COMPONENT PC IS
+        PORT (
+            clk : IN STD_LOGIC;
+            reset : IN STD_LOGIC;
+            pc_select : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+            pc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+        );
+
+    END COMPONENT PC;
 
     COMPONENT register_file IS
         PORT (
@@ -72,13 +83,20 @@ ARCHITECTURE Behavioral OF CPU IS
     END COMPONENT ALU;
 
 BEGIN
-
     instruction_mem : IM
     PORT MAP(
         clk => clk,
         pc => (OTHERS => '0'),
         reset => reset,
         instruction => instr
+    );
+
+    pc : PC
+    PORT MAP(
+        clk => clk,
+        reset => reset,
+        pc_select=>signals(24 downto 22);
+        pc=>pc,
     );
 
     control_unit : CU
