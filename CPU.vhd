@@ -26,7 +26,7 @@ ARCHITECTURE Behavioral OF CPU IS
             clk : IN STD_LOGIC;
             -- load     : in std_logic; 
             -- program  : in std_logic_vector(10*16-1 downto 0); 
-            pc : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            location : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
             reset : IN STD_LOGIC;
             instruction : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
@@ -42,15 +42,15 @@ ARCHITECTURE Behavioral OF CPU IS
 
     END COMPONENT CU;
 
-    COMPONENT PC IS
+    COMPONENT PC_UNIT IS
         PORT (
             clk : IN STD_LOGIC;
             reset : IN STD_LOGIC;
-            pc_select : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+            pc_select : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
             pc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
 
-    END COMPONENT PC;
+    END COMPONENT PC_UNIT;
 
     COMPONENT register_file IS
         PORT (
@@ -86,17 +86,17 @@ BEGIN
     instruction_mem : IM
     PORT MAP(
         clk => clk,
-        pc => (OTHERS => '0'),
+        location => pc(11 downto 0),
         reset => reset,
         instruction => instr
     );
 
-    pc : PC
+    pc_inst : PC_UNIT
     PORT MAP(
         clk => clk,
         reset => reset,
-        pc_select=>signals(24 downto 22);
-        pc=>pc,
+        pc_select=>signals(24 downto 22),
+        pc=>pc
     );
 
     control_unit : CU

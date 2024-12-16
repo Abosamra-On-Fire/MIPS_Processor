@@ -7,7 +7,7 @@ ENTITY IM IS
         clk : IN STD_LOGIC;
         -- load     : in std_logic; 
         -- program  : in std_logic_vector(10*16-1 downto 0); 
-        pc : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        location : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
         reset : IN STD_LOGIC;
         instruction : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
     );
@@ -23,7 +23,6 @@ ARCHITECTURE Behavioral OF IM IS
         "0101010001000000"
     );
 
-    SIGNAL ins : INTEGER := 0;
 BEGIN
     PROCESS (clk, reset)
     BEGIN
@@ -37,14 +36,7 @@ BEGIN
                 --     instruction_memory(i) <= program((i+1)*16-1 downto i*16);
                 -- end loop;
                 -- else
-                -- instruction <= instruction_memory(to_integer(unsigned(pc(11 DOWNTO 0))));
-                instruction <= instruction_memory(2);
-                ins <= ins + 1;
-
-                IF ins = 4 THEN
-                    ins <= 0;
-                END IF;
-                -- end if;
+                instruction <= instruction_memory(to_integer(unsigned(location)));
             END IF;
         END IF;
     END PROCESS;
