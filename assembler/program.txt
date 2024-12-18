@@ -1,0 +1,4 @@
+ADD $t1, $t2, $t3
+LDD $t0, 4($t1)
+INT 1
+LDM $t3, 16
