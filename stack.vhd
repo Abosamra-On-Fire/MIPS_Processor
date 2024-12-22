@@ -14,31 +14,36 @@ END Stack;
 
 ARCHITECTURE Behavioral OF Stack IS
     SIGNAL sp_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := X"0FFF"; -- Stack pointer register
+
 BEGIN
 
     PROCESS (clk, reset)
+        VARIABLE var : STD_LOGIC_VECTOR(15 DOWNTO 0); -- Stack pointer register
     BEGIN
         IF reset = '1' THEN
             -- Reset the stack pointer to a default value (e.g., 0xFF for an empty stack)
             sp_reg <= X"0FFF"; -- Example starting value for the pointer
             stack_pointer <= sp_reg; -- Output the initial stack pointer value
         ELSIF rising_edge(clk) THEN
+            var := sp_reg;
             IF stack_write = '1' THEN
 
                 IF stack_add = '1' THEN
                     -- Push operation: Increment the stack pointer
-                    stack_pointer <= sp_reg;
-                    sp_reg <= STD_LOGIC_VECTOR(unsigned(sp_reg) - 1);
+                    stack_pointer <= var;
+                    var := STD_LOGIC_VECTOR(unsigned(var) - 1);
 
                 ELSE
                     -- Pop operation: Decrement the stack pointer
 
-                    stack_pointer <= STD_LOGIC_VECTOR(unsigned(sp_reg) + 1);
-                    sp_reg <= STD_LOGIC_VECTOR(unsigned(sp_reg) + 1);
+                    var := STD_LOGIC_VECTOR(unsigned(var) + 1);
+                    stack_pointer <= var;
                 END IF;
+                sp_reg <= var;
                 -- Push operation: Increment the stack pointer
             ELSE
-                stack_pointer <= sp_reg;
+                stack_pointer <= var;
+                sp_reg <= var;
             END IF;
         END IF;
     END PROCESS;

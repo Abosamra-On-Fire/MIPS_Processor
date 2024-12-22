@@ -18,7 +18,9 @@ ARCHITECTURE Behavioral_Alu_tb OF ALU_tb IS
             Result : OUT STD_LOGIC_VECTOR(15 DOWNTO 0); -- ALU result (16 bits)
             Carry : OUT STD_LOGIC; -- Carry flag
             Zero : OUT STD_LOGIC; -- Zero flag
-            Negative : OUT STD_LOGIC -- Negative flag
+            Negative : OUT STD_LOGIC;-- Negative flag
+            en : IN STD_LOGIC
+
         );
     END COMPONENT;
 
@@ -32,6 +34,7 @@ ARCHITECTURE Behavioral_Alu_tb OF ALU_tb IS
     SIGNAL Carry : STD_LOGIC;
     SIGNAL Zero : STD_LOGIC;
     SIGNAL Negative : STD_LOGIC;
+    SIGNAL en : STD_LOGIC;
 
     -- Clock generation process
     CONSTANT clk_period : TIME := 10 ns;
@@ -48,7 +51,8 @@ BEGIN
         Result => Result,
         Carry => Carry,
         Zero => Zero,
-        Negative => Negative
+        Negative => Negative,
+        en => en
     );
 
     -- Clock generation
@@ -64,17 +68,19 @@ BEGIN
     stimulus_process : PROCESS
     BEGIN
         -- Test case 1: Reset the ALU
+        en <= '0';
         reset <= '1'; -- Apply reset
         WAIT FOR clk_period;
         ASSERT Result = X"0000" AND Carry = '0' AND Zero = '1' AND Negative = '0'
         REPORT "Test case 1 (Reset): FAILED"
             SEVERITY ERROR;
         reset <= '0'; -- Deactivate reset
+        en <= '1';
         -- Test case 2: NOT operation
         A <= X"FFFF"; -- A = 1111 1111 1111 1111
         OP <= "000"; -- OP = NOT
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0000" AND Carry = '0' AND Zero = '1' AND Negative = '0'
         REPORT "Test case 2 (NOT): FAILED"
             SEVERITY ERROR;
@@ -83,7 +89,7 @@ BEGIN
         A <= X"0001"; -- A = 0000 0000 0000 0001
         OP <= "001"; -- OP = INC
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0002" AND Carry = '0' AND Zero = '0' AND Negative = '0'
         REPORT "Test case 3 (INC): FAILED"
             SEVERITY ERROR;
@@ -93,7 +99,7 @@ BEGIN
         B <= X"0001"; -- B = 0000 0000 0000 0001
         OP <= "010"; -- OP = ADD
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0010" AND Carry = '0' AND Zero = '0' AND Negative = '0'
         REPORT "Test case 4 (ADD): FAILED"
             SEVERITY ERROR;
@@ -103,7 +109,7 @@ BEGIN
         B <= X"000F"; -- B = 0000 0000 0000 1111
         OP <= "011"; -- OP = SUB
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0001" AND Carry = '0' AND Zero = '0' AND Negative = '0'
         REPORT "Test case 5 (SUB): FAILED"
             SEVERITY ERROR;
@@ -113,7 +119,7 @@ BEGIN
         B <= X"0F0F"; -- B = 0000 1111 0000 1111
         OP <= "100"; -- OP = AND
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0F0F" AND Carry = '0' AND Zero = '0' AND Negative = '0'
         REPORT "Test case 6 (AND): FAILED"
             SEVERITY ERROR;
@@ -122,7 +128,7 @@ BEGIN
         A <= X"AAAA"; -- A = 1010 1010 1010 1010
         OP <= "101"; -- OP = OP1
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"AAAA" AND Carry = '0' AND Zero = '0' AND Negative = '1'
         REPORT "Test case 7 (OP1): FAILED"
             SEVERITY ERROR;
@@ -131,7 +137,7 @@ BEGIN
         B <= X"5555"; -- B = 0101 0101 0101 0101
         OP <= "110"; -- OP = OP2
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"5555" AND Carry = '0' AND Zero = '0' AND Negative = '0'
         REPORT "Test case 8 (OP2): FAILED"
             SEVERITY ERROR;
@@ -139,7 +145,7 @@ BEGIN
         -- Test case 9: Set Carry
         OP <= "111"; -- OP = Set Carry
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Carry = '1'
         REPORT "Test case 9 (Set Carry): FAILED"
             SEVERITY ERROR;
@@ -149,7 +155,7 @@ BEGIN
         A <= X"FFFF";
         OP <= "001";
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0000" AND Carry = '1' AND Zero = '1' AND Negative = '0'
         REPORT "Increment max value failed 10" SEVERITY ERROR;
 
@@ -158,7 +164,7 @@ BEGIN
         B <= X"FFFF";
         OP <= "010";
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"FFFE" AND Carry = '1' AND Zero = '0' AND Negative = '1'
         REPORT "Add max values failed 11" SEVERITY ERROR;
 
@@ -167,7 +173,7 @@ BEGIN
         B <= X"FFFF";
         OP <= "011";
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0000" AND Carry = '0' AND Zero = '1' AND Negative = '0'
         REPORT "Subtract max values failed 12" SEVERITY ERROR;
 
@@ -176,7 +182,7 @@ BEGIN
         B <= X"0000";
         OP <= "011";
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0000" AND Carry = '0' AND Zero = '1' AND Negative = '0'
         REPORT "Subtract zero from zero failed 13" SEVERITY ERROR;
 
@@ -185,9 +191,18 @@ BEGIN
         B <= X"0000";
         OP <= "100";
         WAIT FOR clk_period;
-        WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
         ASSERT Result = X"0000" AND Carry = '0' AND Zero = '1' AND Negative = '0'
         REPORT "AND zero with zero failed 14" SEVERITY ERROR;
+
+        en <= '0';
+        A <= X"FFFF";
+        B <= X"FFFF";
+        OP <= "010";
+        WAIT FOR clk_period;
+        -- WAIT FOR clk_period; -- Wait an additional clock cycle for flags to update
+        ASSERT Result = X"0000" AND Carry = '0' AND Zero = '1' AND Negative = '0'
+        REPORT "Subtract max values failed 12" SEVERITY ERROR;
 
         WAIT;
     END PROCESS;
