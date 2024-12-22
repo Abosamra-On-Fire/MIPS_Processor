@@ -1,4 +1,4 @@
-ADD $t1, $t2, $t3
+SUB $t1, $t4, $t2
 LDD $t0, 4($t1)
 INT 1
 LDM $t3, 16
