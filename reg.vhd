@@ -2,31 +2,32 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
-entity reg is
-    generic (
-        SIZE : integer := 128
+ENTITY reg IS
+    GENERIC (
+        SIZE : INTEGER := 128
     );
-    port(
-        clk : in STD_LOGIC;
-        Data_in : in STD_LOGIC_VECTOR (SIZE-1 downto 0);
-        en : in STD_LOGIC;
-        rst : in std_logic;
-        Data_out : out STD_LOGIC_VECTOR (SIZE-1 downto 0)
+    PORT (
+        clk : IN STD_LOGIC;
+        Data_in : IN STD_LOGIC_VECTOR (SIZE - 1 DOWNTO 0);
+        en : IN STD_LOGIC;
+        rst : IN STD_LOGIC;
+        Data_out : OUT STD_LOGIC_VECTOR (SIZE - 1 DOWNTO 0)
     );
-end reg;
+END reg;
 
-architecture Behavioral of reg is
-    signal memory_array : std_logic_vector(SIZE-1 downto 0) := (others => '0');
-    begin
-        process(clk,rst,en)
-        begin
-            if rst = '1' then
-                memory_array <= (others => '0');
-            elsif en = '1' then
-                if (rising_edge(clk)) then
-                    memory_array <= Data_in;
-                end if;
-            end if;
-            Data_out <= memory_array;
-        end process;
-end Behavioral;
+ARCHITECTURE Behavioral OF reg IS
+    SIGNAL memory_array : STD_LOGIC_VECTOR(SIZE - 1 DOWNTO 0) := (OTHERS => '0');
+BEGIN
+    PROCESS (clk, rst, en)
+    BEGIN
+        IF rst = '1' THEN
+            memory_array <= (OTHERS => '0');
+        ELSIF en = '1' THEN
+            IF (rising_edge(clk)) THEN
+                memory_array <= Data_in;
+            END IF;
+        END IF;
+    END PROCESS;
+    Data_out <= memory_array;
+
+END Behavioral;

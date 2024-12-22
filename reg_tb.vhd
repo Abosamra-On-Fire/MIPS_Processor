@@ -10,14 +10,14 @@ ARCHITECTURE behavior OF tb_reg IS
     -- Component Declaration for the Unit Under Test (UUT)
     COMPONENT reg
         GENERIC (
-            SIZE : integer := 128
+            SIZE : INTEGER := 128
         );
         PORT (
-            clk : in STD_LOGIC;
-            Data_in : in STD_LOGIC_VECTOR (SIZE-1 downto 0);
-            en : in STD_LOGIC;
-            rst : in STD_LOGIC;
-            Data_out : out STD_LOGIC_VECTOR (SIZE-1 downto 0)
+            clk : IN STD_LOGIC;
+            Data_in : IN STD_LOGIC_VECTOR (SIZE - 1 DOWNTO 0);
+            en : IN STD_LOGIC;
+            rst : IN STD_LOGIC;
+            Data_out : OUT STD_LOGIC_VECTOR (SIZE - 1 DOWNTO 0)
         );
     END COMPONENT;
 
@@ -29,18 +29,18 @@ ARCHITECTURE behavior OF tb_reg IS
     SIGNAL Data_out_tb : STD_LOGIC_VECTOR (127 DOWNTO 0);
 
     -- Clock period definition
-    CONSTANT clk_period : time := 10 ns;
+    CONSTANT clk_period : TIME := 10 ns;
 
 BEGIN
     -- Instantiate the Unit Under Test (UUT)
-    uut: reg
-        PORT MAP (
-            clk => clk_tb,
-            Data_in => Data_in_tb,
-            en => en_tb,
-            rst => rst_tb,
-            Data_out => Data_out_tb
-        );
+    uut : reg
+    PORT MAP(
+        clk => clk_tb,
+        Data_in => Data_in_tb,
+        en => en_tb,
+        rst => rst_tb,
+        Data_out => Data_out_tb
+    );
 
     -- Clock generation process
     clk_process : PROCESS
@@ -52,29 +52,29 @@ BEGIN
     END PROCESS;
 
     -- Stimulus process
-    stim_proc: PROCESS
+    stim_proc : PROCESS
     BEGIN
         -- Test case 1: Reset the register
-        rst_tb <= '1';  -- Apply reset
+        rst_tb <= '1'; -- Apply reset
         WAIT FOR clk_period;
-        rst_tb <= '0';  -- Deassert reset
-        WAIT FOR clk_period;
+        rst_tb <= '0'; -- Deassert reset
+        WAIT FOR 0.5 * clk_period;
 
         -- Test case 2: Write data when enable is '1'
-        en_tb <= '1';  -- Enable the register
-        Data_in_tb <= (OTHERS => '1');  -- Set input data to all '1's
+        en_tb <= '1'; -- Enable the register
+        Data_in_tb <= (OTHERS => '1'); -- Set input data to all '1's
         WAIT FOR clk_period;
         -- assert (Data_out_tb = (OTHERS => '1')) REPORT "Error: Data not written correctly when en is '1'" SEVERITY error;
-        
+
         -- Test case 3: Disable register and verify that data is held
-        en_tb <= '0';  -- Disable the register
-        Data_in_tb <= (OTHERS => '0');  -- Change input data to all '0's (should not be written)
+        en_tb <= '0'; -- Disable the register
+        Data_in_tb <= (OTHERS => '0'); -- Change input data to all '0's (should not be written)
         -- WAIT FOR clk_period;
         -- assert (Data_out_tb = (OTHERS => '1')) REPORT "Error: Data changed when en is '0'" SEVERITY error;
-        
+
         -- Test case 4: Apply a new data with enable '1'
-        en_tb <= '1';  -- Enable the register
-        Data_in_tb <= (OTHERS => '0');  -- Set input data to all '0's
+        en_tb <= '1'; -- Enable the register
+        Data_in_tb <= (OTHERS => '0'); -- Set input data to all '0's
         WAIT FOR clk_period;
         -- assert (Data_out_tb = (OTHERS => '0')) REPORT "Error: Data not written correctly when en is '1'" SEVERITY error;
 
