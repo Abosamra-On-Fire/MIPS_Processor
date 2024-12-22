@@ -48,7 +48,8 @@ BEGIN
         Result => Result,
         Carry => Carry,
         Zero => Zero,
-        Negative => Negative
+        Negative => Negative,
+        
     );
 
     -- Clock generation
