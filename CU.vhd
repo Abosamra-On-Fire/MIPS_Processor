@@ -19,12 +19,15 @@ END CU;
 ARCHITECTURE Behavioral OF CU IS
     SIGNAL exception : STD_LOGIC := '0';
     SIGNAL type_siganl : STD_LOGIC := '0'; -- 0 for stake, 1 for memory
+    SIGNAL exception : STD_LOGIC := '0';
+    SIGNAL type_siganl : STD_LOGIC := '0'; -- 0 for stake, 1 for memory
 BEGIN
     PROCESS (clk, reset, opcode)
     BEGIN
         IF reset = '1' THEN
             signals <= (OTHERS => '0');
         ELSE
+            exception_flage <= (OTHERS => '0');
             exception_flage <= (OTHERS => '0');
             signals <= (OTHERS => '0');
             IF (stack > X"0FFF") THEN -- stack exception
@@ -137,6 +140,5 @@ BEGIN
 
             END IF;
         END IF;
-
     END PROCESS;
 END Behavioral;
