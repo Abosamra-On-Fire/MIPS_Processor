@@ -15,7 +15,6 @@ ENTITY EX IS
         out_port_signal : IN STD_LOGIC;
         stack_write : IN STD_LOGIC;
         stack_add : IN STD_LOGIC;
-
         clk : IN STD_LOGIC;
         reset : IN STD_LOGIC;
         imm : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -24,7 +23,8 @@ ENTITY EX IS
         out_port_data : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         data_to_mem : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         data_to_mem_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-        stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+        stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        signal_to_branch_ex : OUT IN STD_LOGIC
     );
 END EX;
 ARCHITECTURE rtl OF EX IS
@@ -176,4 +176,6 @@ BEGIN
         data_to_mem => data_to_mem,
         data_out => data_to_mem_out
     );
+
+    signal_to_branch_ex <= branch_add;
 END ARCHITECTURE;

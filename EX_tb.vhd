@@ -30,7 +30,8 @@ ARCHITECTURE Behavioral OF EX_tb IS
             out_port_data : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
             data_to_mem : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
             data_to_mem_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-            stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+            stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+            signal_to_branch_ex : OUT IN STD_LOGIC
         );
     END COMPONENT;
 
@@ -57,6 +58,7 @@ ARCHITECTURE Behavioral OF EX_tb IS
     SIGNAL data_to_mem : STD_LOGIC_VECTOR(1 DOWNTO 0);
     SIGNAL data_to_mem_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL stack_pointer : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL signal_to_branch_ex : STD_LOGIC;
 
     -- Clock period definition
     CONSTANT clk_period : TIME := 10 ns;
@@ -92,7 +94,9 @@ BEGIN
         out_port_data => out_port_data,
         data_to_mem => data_to_mem,
         data_to_mem_out => data_to_mem_out,
-        stack_pointer => stack_pointer
+        stack_pointer => stack_pointer,
+
+        signal_to_branch_ex => signal_to_branch_ex
     );
 
     -- Clock generation
@@ -400,7 +404,5 @@ BEGIN
 
         WAIT;
     END PROCESS;
-
-    
 
 END Behavioral;
