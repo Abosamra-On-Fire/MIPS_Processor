@@ -11,7 +11,8 @@ ENTITY reg IS
         Data_in : IN STD_LOGIC_VECTOR (SIZE - 1 DOWNTO 0);
         en : IN STD_LOGIC;
         rst : IN STD_LOGIC;
-        Data_out : OUT STD_LOGIC_VECTOR (SIZE - 1 DOWNTO 0)
+        Data_out : OUT STD_LOGIC_VECTOR (SIZE - 1 DOWNTO 0);
+        flage_flush : IN STD_LOGIC
     );
 END reg;
 
@@ -24,7 +25,11 @@ BEGIN
             memory_array <= (OTHERS => '0');
         ELSIF en = '1' THEN
             IF (rising_edge(clk)) THEN
-                memory_array <= Data_in;
+                IF flage_flush = '1' THEN
+                    memory_array <= (OTHERS => '0');
+                ELSE
+                    memory_array <= Data_in;
+                END IF;
             END IF;
         END IF;
     END PROCESS;

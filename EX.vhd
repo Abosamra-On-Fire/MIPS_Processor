@@ -24,7 +24,9 @@ ENTITY EX IS
         out_port_data : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         data_to_mem : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         data_to_mem_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-        stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+        stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        Rs1 : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+
     );
 END EX;
 ARCHITECTURE rtl OF EX IS
@@ -176,4 +178,6 @@ BEGIN
         data_to_mem => data_to_mem,
         data_out => data_to_mem_out
     );
+
+    Rs1 <= R1_OUT_FORWARD;
 END ARCHITECTURE;
