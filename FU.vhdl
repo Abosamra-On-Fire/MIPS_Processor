@@ -7,8 +7,10 @@ ENTITY FU IS
     PORT (
         R1 : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
         R2 : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
-        ex_r : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
-        mem_r : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+        ex_reg_write : IN STD_LOGIC;
+        mem_reg_write : IN STD_LOGIC;
+        ex_rd : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+        mem_rd : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
         a : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
         b : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)
     );
@@ -16,22 +18,24 @@ END FU;
 
 ARCHITECTURE Behavioral OF FU IS
 BEGIN
-    PROCESS (R1, R2, ex_r, mem_r)
+    PROCESS (R1, R2, ex_reg_write, mem_reg_write, ex_rd, mem_rd)
     BEGIN
-        IF (R1 = ex_r) THEN
-            a <= "01";
-        ELSIF (R1 = mem_r) THEN
-            a <= "10";
-        ELSE
-            a <= "00";
+        -- Forwarding for A
+        IF (ex_reg_write = '1' AND ex_rd = R1) THEN
+            a <= "01"; -- Forward from EX stage
+            ELSIF (mem_reg_write = '1' AND mem_rd = R1 AND NOT (ex_reg_write = '1' AND ex_rd = R1)) THEN
+            a <= "10"; -- Forward from MEM stage
+            ELSE
+            a <= "00"; -- No forwarding
         END IF;
 
-        IF (R2 = ex_r) THEN
-            b <= "01";
-        ELSIF (R2 = mem_r) THEN
-            b <= "10";
-        ELSE
-            b <= "00";
+        -- Forwarding for B
+        IF (ex_reg_write = '1' AND ex_rd = R2) THEN
+            b <= "01"; -- Forward from EX stage
+            ELSIF (mem_reg_write = '1' AND mem_rd = R2 AND NOT (ex_reg_write = '1' AND ex_rd = R2)) THEN
+            b <= "10"; -- Forward from MEM stage
+            ELSE
+            b <= "00"; -- No forwarding
         END IF;
     END PROCESS;
 END Behavioral;
