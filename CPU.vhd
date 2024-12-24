@@ -14,7 +14,7 @@ ARCHITECTURE Behavioral OF CPU IS
     -- CU signals
     SIGNAL pc : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL instr : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL signals : STD_LOGIC_VECTOR(24 DOWNTO 0);
+    SIGNAL signals : STD_LOGIC_VECTOR(28 DOWNTO 0);
     SIGNAL rd1 : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL rd2 : STD_LOGIC_VECTOR(15 DOWNTO 0);
     -- Pipeline registers using the reg module
@@ -60,7 +60,7 @@ ARCHITECTURE Behavioral OF CPU IS
             clk : IN STD_LOGIC;
             reset : IN STD_LOGIC;
             opcode : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
-            signals : OUT STD_LOGIC_VECTOR(24 DOWNTO 0)
+            signals : OUT STD_LOGIC_VECTOR(28 DOWNTO 0)
         );
     END COMPONENT CU;
 
@@ -68,7 +68,12 @@ ARCHITECTURE Behavioral OF CPU IS
         PORT (
             clk : IN STD_LOGIC;
             reset : IN STD_LOGIC;
-            pc_select : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            signals : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+            epc : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            Rd1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            Index : IN STD_LOGIC;
+            Rsrc1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            WB : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
             pc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
     END COMPONENT PC_UNIT;
@@ -119,7 +124,7 @@ BEGIN
     PORT MAP(
         clk => clk,
         reset => reset,
-        pc_select => signals(24 DOWNTO 22),
+        signals => signals(24 DOWNTO 22),
         pc => pc
     );
     IF_ID_IN(15 DOWNTO 0) <= pc;
@@ -166,7 +171,7 @@ BEGIN
         read_data1 => rd1,
         read_data2 => rd2
     );
-    ID_EX_IN(70 DOWNTO 46) <= signals;
+    ID_EX_IN(70 DOWNTO 46) <= signals; -- 70 to 46 == 24 - 0
     ID_EX_IN(127 DOWNTO 112) <= rd1;
     ID_EX_IN(111 DOWNTO 96) <= rd2;
     ID_EX_IN(95 DOWNTO 80) <= IF_ID_OUT(15 DOWNTO 0); --pc

@@ -186,6 +186,8 @@ string parseInstruction(const string &line)
     else if (instruction == "INT")
     {
         iss >> index;
+        if (index == "2")
+            index = "1";
 
         return opcode + "0000000000" + index;
     }

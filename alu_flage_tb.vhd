@@ -49,7 +49,7 @@ BEGIN
         Carry => Carry,
         Zero => Zero,
         Negative => Negative,
-        
+
     );
 
     -- Clock generation
