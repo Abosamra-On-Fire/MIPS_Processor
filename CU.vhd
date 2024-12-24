@@ -12,13 +12,11 @@ ENTITY CU IS
         flush : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
         exception_flage : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
 
-        mem_address : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        mem_address : IN STD_LOGIC_VECTOR(15 DOWNTO 0)
     );
 END CU;
 
 ARCHITECTURE Behavioral OF CU IS
-    SIGNAL exception : STD_LOGIC := '0';
-    SIGNAL type_siganl : STD_LOGIC := '0'; -- 0 for stake, 1 for memory
     SIGNAL exception : STD_LOGIC := '0';
     SIGNAL type_siganl : STD_LOGIC := '0'; -- 0 for stake, 1 for memory
 BEGIN
@@ -26,7 +24,7 @@ BEGIN
     BEGIN
         IF reset = '1' THEN
             signals <= (OTHERS => '0');
-        ELSE
+            ELSE
             exception_flage <= (OTHERS => '0');
             exception_flage <= (OTHERS => '0');
             signals <= (OTHERS => '0');
@@ -34,7 +32,7 @@ BEGIN
                 exception <= '1';
                 type_siganl <= '0';
             END IF;
-            IF (mem_address > X"0FFF" | | mem_address < X"0000") THEN -- memory exception
+            IF (mem_address > X"0FFF" OR mem_address < X"0000") THEN -- memory exception
                 exception <= '1';
                 type_siganl <= '1';
             END IF;
@@ -43,7 +41,7 @@ BEGIN
                 CASE opcode IS
                     WHEN "00001" =>
                         signals(0) <= '1';
-                        signals(24) <= "1";
+                        signals(24) <= '1';
                     WHEN "00010" =>
                         signals(26 DOWNTO 25) <= "11";
                     WHEN "00011" =>
@@ -80,7 +78,7 @@ BEGIN
                         signals(17) <= '1';
                     WHEN "01100" =>
                         signals(15 DOWNTO 14) <= "11";
-                        signals(2 DOWNTO 1) <= '01';
+                        signals(2 DOWNTO 1) <= "01";
                         signals(8) <= '1';
                     WHEN "01101" =>
                         signals(8) <= '1';
@@ -122,7 +120,7 @@ BEGIN
                     WHEN "10111" =>
                         signals(23) <= '1';
                         signals(0) <= '1';
-                        signals(2 DOWNTO 1) <= '01';
+                        signals(2 DOWNTO 1) <= "01";
                         signals(8) <= '1';
                         signals(15 DOWNTO 14) <= "11";
                     WHEN "11000" =>
@@ -139,15 +137,15 @@ BEGIN
                         signals <= (OTHERS => '0');
                 END CASE;
 
-            ELSIF (branch = '1') THEN
+                ELSIF (branch = '1') THEN
 
                 flush <= "1100";
-            ELSIF (exception = '1') THEN
+                ELSIF (exception = '1') THEN
                 IF (type_siganl = '0') THEN
                     flush <= "1100";
                     exception_flage <= "01";
 
-                ELSE
+                    ELSE
                     flush <= "1110";
                     exception_flage <= "11";
                 END IF;
