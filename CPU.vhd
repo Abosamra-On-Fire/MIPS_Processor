@@ -28,6 +28,7 @@ ARCHITECTURE Behavioral OF CPU IS
     SIGNAL exception_flage : STD_LOGIC_VECTOR(1 DOWNTO 0);
     SIGNAL mem_data_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL mem_address : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL Data_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
     -- Pipeline registers using the reg module
     SIGNAL IF_ID_IN : STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL IF_ID_OUT : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -51,6 +52,17 @@ ARCHITECTURE Behavioral OF CPU IS
             Data_out : OUT STD_LOGIC_VECTOR(SIZE - 1 DOWNTO 0)
         );
     END COMPONENT reg;
+
+    -- COMPONENT FU IS
+    --     PORT (
+    --         R1 : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+    --         R2 : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+    --         ex_r : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+    --         mem_r : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+    --         a : OUT STD_LOGIC_VECTOR (1 DOWNTO 0);
+    --         b : OUT STD_LOGIC_VECTOR (1 DOWNTO 0)
+    --     );
+    -- END COMPONENT FU;
 
     -- declarations
     COMPONENT IM IS
@@ -137,7 +149,9 @@ ARCHITECTURE Behavioral OF CPU IS
         );
         PORT (
             Data : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-            Address : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+            stack : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+            alu : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+            add_sel : IN STD_LOGIC;
             mem_write : IN STD_LOGIC;
             mem_read : IN STD_LOGIC;
             clk : IN STD_LOGIC;
@@ -203,7 +217,7 @@ BEGIN
         read_data1 => rd1,
         read_data2 => rd2
     );
-    ID_EX_IN(70 DOWNTO 46) <= signals; -- 70 to 46 == 24 - 0
+    ID_EX_IN(70 DOWNTO 42) <= signals; -- 70 to 42 == 28 - 0
     ID_EX_IN(127 DOWNTO 112) <= rd1;
     ID_EX_IN(111 DOWNTO 96) <= rd2;
     ID_EX_IN(95 DOWNTO 80) <= IF_ID_OUT(15 DOWNTO 0); --pc
@@ -237,19 +251,19 @@ BEGIN
 
         PC => ID_EX_OUT(95 DOWNTO 80),
 
-        Alu_Source1 => signals(6),
-        Alu_Source2 => signals(7),
-        Alu_control => signals(13 DOWNTO 11),
+        Alu_Source1 => ID_EX_OUT(48),
+        Alu_Source2 => ID_EX_OUT(49),
+        Alu_control => ID_EX_OUT(55 DOWNTO 53),
 
-        conditional_branch => signals(3),
+        conditional_branch => ID_EX_OUT(45),
 
-        branch_sel => signals(5 DOWNTO 4),
+        branch_sel => ID_EX_OUT(47 DOWNTO 46),
 
-        alu_enable => signals(26),
+        alu_enable => ID_EX_OUT(67),
 
-        out_port_signal => signals(9),
-        stack_write => signals(14),
-        stack_add => signals(10),
+        out_port_signal => ID_EX_OUT(51),
+        stack_write => ID_EX_OUT(56),
+        stack_add => ID_EX_OUT(52),
         clk => clk,
         reset => reset,
         imm => IF_ID_OUT(31 DOWNTO 16),
@@ -257,7 +271,7 @@ BEGIN
         branch_out => branch,
         out_port_data => out_port_data,
 
-        data_to_mem => signals(2 DOWNTO 1),
+        data_to_mem => ID_EX_OUT(44 DOWNTO 43),
 
         data_to_mem_out => mem_data_out,
         stack_pointer => stack
@@ -270,7 +284,9 @@ BEGIN
     EX_MEM_IN(44) <= ID_EX_OUT(61); --mem write
     EX_MEM_IN(43) <= ID_EX_OUT(54); --wb add set
     EX_MEM_IN(42 DOWNTO 40) <= ID_EX_OUT(79 DOWNTO 77); --wb add set
-
+    EX_MEM_IN(39) <= branch;
+    EX_MEM_IN(38 DOWNTO 23) <= mem_data_out;
+    EX_MEM_IN(22 DOWNTO 7) <= stack;
     -- EX/MEM Register (pipeline register between EX and MEM stages)
     EX_MEM_reg : reg
     GENERIC MAP(
@@ -285,11 +301,25 @@ BEGIN
         flage_flush => OPEN
     );
     ------------------------------------------
-    ---------------------DM------------------
+    d_mem : D_MEM
+    GENERIC (
+        SIZE : INTEGER := 4096
+    );
+    PORT MAP(
+        Data <= EX_MEM_OUT(38 DOWNTO 23);
+        stack <= EX_MEM_OUT(22 DOWNTO 7);
+        alu <= EX_MEM_OUT(63 DOWNTO 48);
+        add_sel <= EX_MEM_OUT(54);
+        mem_write <= EX_MEM_OUT(44);
+        mem_read <= EX_MEM_OUT(45);
+        clk <= clk;
+        Data_out <= Data_out
+    );
     -----------------------------------------
     MEM_WB_IN(0) <= EX_MEM_OUT(46); --write reg
     MEM_WB_IN(16 DOWNTO 1) <= EX_MEM_OUT(63 DOWNTO 48);--alu out
-    MEM_WB_IN(19 DOWNTO 17) <= EX_MEM_OUT(42 DOWNTO 40);
+    MEM_WB_IN(19 DOWNTO 17) <= EX_MEM_OUT(42 DOWNTO 40); --wb add set
+    MEM_WB_IN(35 DOWNTO 20) <= Data_out;
     MEM_WB_reg : reg
     GENERIC MAP(
         SIZE => 64
