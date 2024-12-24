@@ -5,32 +5,39 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity FU is
     Port (
-    R1 : in STD_LOGIC_VECTOR (2 downto 0);
-    R2 : in STD_LOGIC_VECTOR (2 downto 0);
-    ex_r : in STD_LOGIC_VECTOR (2 downto 0);
-    mem_r : in STD_LOGIC_VECTOR (2 downto 0);
-    a : out STD_LOGIC_VECTOR (1 downto 0);
-    b : out STD_LOGIC_VECTOR (1 downto 0);
-)
+        R1 : in STD_LOGIC_VECTOR (2 downto 0);
+        R2 : in STD_LOGIC_VECTOR (2 downto 0);
+        ex_r : in STD_LOGIC_VECTOR (2 downto 0);
+        mem_r : in STD_LOGIC_VECTOR (2 downto 0);
+        ex_reg_write : in STD_LOGIC;
+        mem_reg_write : in STD_LOGIC;
+       
+        mem_rd : in STD_LOGIC_VECTOR (2 downto 0);
+        a : out STD_LOGIC_VECTOR (1 downto 0);
+        b : out STD_LOGIC_VECTOR (1 downto 0)
+    );
 end FU;
 
 architecture Behavioral of FU is
 begin
-    process(R1, R2, ex_r, mem_r)
+    process(R1, R2, ex_r, mem_r, ex_reg_write, mem_reg_write, ex_rd, mem_rd)
     begin
-        if (R1 = ex_r) then
-            a <= "10"; -- to select a = ex 
-        elsif (R1 = mem_r) then
-            a <= "01"; -- to select a = mem
+        -- Forwarding for A
+        if (ex_reg_write = '1'  and ex_rd = R1) then
+            a <= "01"; -- Forward from EX stage
+        elsif (mem_reg_write = '1' and mem_rd = R1 and not (ex_reg_write = '1' and ex_rd = R1)) then
+            a <= "10"; -- Forward from MEM stage
         else
-            a <= "00";    
+            a <= "00"; -- No forwarding
         end if;
 
-        if (R1 = ex_r) then
-            b <= "10"; -- to select b = ex 
-        elsif (R1 = mem_r) then
-            b <= "01"; -- to select b = mem
+        -- Forwarding for B
+        if (ex_reg_write = '1'  and ex_rd = R2) then
+            b <= "01"; -- Forward from EX stage
+        elsif (mem_reg_write = '1'  and mem_rd = R2 and not (ex_reg_write = '1' and ex_rd = R2)) then
+            b <= "10"; -- Forward from MEM stage
         else
-            b <= "00";    
+            b <= "00"; -- No forwarding
         end if;
     end process;
+end Behavioral;
