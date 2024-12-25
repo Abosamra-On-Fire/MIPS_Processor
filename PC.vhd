@@ -36,47 +36,47 @@ BEGIN
             in_epc <= (OTHERS => '0');
             CURR_PC := (OTHERS => '0');
 
-            ELSIF rising_edge(clk) THEN
+        ELSIF rising_edge(clk) THEN
             CURR_PC := pc_internal;
             IF ex_latch = '1' THEN
                 CURR_PC := STD_LOGIC_VECTOR(unsigned(in_epc) + 1);
                 ex_latch <= '0';
-                ELSE
+            ELSE
                 IF signals(2) = '1' THEN
                     latch <= '1';
                     CURR_PC := CURR_PC;
 
-                    ELSIF signals(7) = '1' THEN
+                ELSIF signals(7) = '1' THEN
                     latch <= '0';
                     CURR_PC := (OTHERS => '0');
-                    ELSIF latch = '1' THEN
+                ELSIF latch = '1' THEN
                     CURR_PC := CURR_PC;
 
-                    ELSIF signals(1) = '1' THEN
+                ELSIF signals(1) = '1' THEN
                     CURR_PC := Rsrc1;
-                    ELSIF signals(0) = '1' THEN
+                ELSIF signals(0) = '1' THEN
                     CURR_PC := WB;
-                    ELSIF signals(4) = '1' THEN
+                ELSIF signals(4) = '1' THEN
                     CURR_PC := Rd1;
-                    ELSIF signals(6 DOWNTO 5) = "10" THEN
+                ELSIF signals(6 DOWNTO 5) = "10" THEN
                     ex_latch <= '1';
                     in_epc <= pc_ex;
                     CURR_PC := "0000000000000010";
-                    ELSIF signals(6 DOWNTO 5) = "11" THEN
+                ELSIF signals(6 DOWNTO 5) = "11" THEN
                     ex_latch <= '1';
                     in_epc <= pc_mem;
                     CURR_PC := "0000000000000011";
-                    ELSIF signals(3) = '1' THEN
+                ELSIF signals(3) = '1' THEN
                     IF Index = '0' THEN
                         CURR_PC := "0000000000000110";
-                        ELSIF Index = '1' THEN
+                    ELSIF Index = '1' THEN
                         CURR_PC := "0000000000001000";
                     END IF;
 
-                    ELSE
+                ELSE
                     IF (ss = '0') THEN
                         CURR_PC := STD_LOGIC_VECTOR(unsigned(pc_internal) + 1);
-                        ELSE
+                    ELSE
                         ss <= '0';
                     END IF;
 

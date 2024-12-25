@@ -19,20 +19,20 @@ END reg;
 ARCHITECTURE Behavioral OF reg IS
     SIGNAL memory_array : STD_LOGIC_VECTOR(SIZE - 1 DOWNTO 0) := (OTHERS => '0');
 BEGIN
-    PROCESS (clk, rst, en)
+    PROCESS (clk, rst)
     BEGIN
         IF rst = '1' THEN
-            memory_array <= (OTHERS => '0');
-        ELSIF en = '1' THEN
-            IF (rising_edge(clk)) THEN
+            memory_array <= (OTHERS => '0'); -- Reset memory array
+        ELSIF rising_edge(clk) THEN
+            IF en = '1' THEN
                 IF flage_flush = '1' THEN
-                    memory_array <= (OTHERS => '0');
+                    memory_array <= (OTHERS => '0'); -- Flush memory array
                 ELSE
-                    memory_array <= Data_in;
+                    memory_array <= Data_in; -- Load data into memory array
                 END IF;
             END IF;
         END IF;
     END PROCESS;
-    Data_out <= memory_array;
+    Data_out <= memory_array; -- Output the memory array
 
 END Behavioral;

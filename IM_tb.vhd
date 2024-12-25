@@ -1,70 +1,78 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL; -- For `unsigned` and `to_integer` conversions
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
-entity IM_tb is
-    -- No ports for a testbench
-end IM_tb;
+ENTITY IM_tb IS
+END IM_tb;
 
-architecture Behavioral of IM_tb is
-    -- Signals for the DUT
-    signal clk         : std_logic := '0';
-    signal load        : std_logic := '0';
-    signal program     : std_logic_vector(10*16-1 downto 0) := (others => '0');
-    signal pc          : std_logic_vector(15 downto 0) := (others => '0');
-    signal instruction : std_logic_vector(15 downto 0);
-
-    -- Clock period
-    constant clk_period : time := 10 ns;
-
-begin
-    -- Instantiate the DUT (IM)
-    uut: entity work.IM
-        port map (
-            clk         => clk,
-            load        => load,
-            program     => program,
-            pc          => pc,
-            instruction => instruction
+ARCHITECTURE Behavioral OF IM_tb IS
+    -- Component declaration for the Unit Under Test (UUT)
+    COMPONENT IM
+        PORT (
+            clk : IN STD_LOGIC;
+            location : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
+            reset : IN STD_LOGIC;
+            instruction : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
+    END COMPONENT;
+
+    -- Signals for inputs and outputs
+    SIGNAL clk : STD_LOGIC := '0';
+    SIGNAL location : STD_LOGIC_VECTOR(11 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL reset : STD_LOGIC := '0';
+    SIGNAL instruction : STD_LOGIC_VECTOR(15 DOWNTO 0);
+
+    -- Clock period definition
+    CONSTANT clk_period : TIME := 10 ns;
+
+BEGIN
+    -- Instantiate the Unit Under Test (UUT)
+    uut_IM : IM
+    PORT MAP(
+        clk => clk,
+        location => location,
+        reset => reset,
+        instruction => instruction
+    );
 
     -- Clock generation
-    clk_process: process
-    begin
-        while true loop
-            clk <= '0';
-            wait for clk_period / 2;
-            clk <= '1';
-            wait for clk_period / 2;
-        end loop;
-    end process;
+    clk_process : PROCESS
+    BEGIN
+        clk <= '0';
+        WAIT FOR clk_period / 2;
+        clk <= '1';
+        WAIT FOR clk_period / 2;
+    END PROCESS;
 
     -- Stimulus process
-    stimulus_process: process
-        variable test_program : std_logic_vector(10*16-1 downto 0);
-        variable i            : integer;
-    begin
-        -- Initialize the program memory
-        for i in 0 to 9 loop
-            test_program((i+1)*16-1 downto i*16) := std_logic_vector(to_unsigned(i, 16));
-        end loop;
+    stim_proc : PROCESS 
+    BEGIN
+        -- Test Case 1: Reset the instruction memory
+        reset <= '1';
+        WAIT FOR clk_period;
+        reset <= '0';
+        WAIT FOR clk_period;
+        ASSERT (instruction = X"0000")
+        REPORT "Test Case 1 Failed: Instruction memory was not reset correctly"
+            SEVERITY ERROR;
 
-        -- Load the program into instruction memory
-        load <= '1';
-        program <= test_program;
-        wait for clk_period;
+        -- Test Case 2: Read instruction from location 0
+        location <= "000000000000";
+        WAIT FOR clk_period;
+        ASSERT (instruction = X"0000") -- Replace with the expected value from IM.txt
+        REPORT "Test Case 2 Failed: Instruction at location 0 was not read correctly"
+            SEVERITY ERROR;
 
-        load <= '0';
-        wait for clk_period;
+        -- Test Case 3: Read instruction from location 1
+        location <= "000000000001";
+        WAIT FOR clk_period;
+        ASSERT (instruction = X"4344") -- Replace with the expected value from IM.txt
+        REPORT "Test Case 3 Failed: Instruction at location 1 was not read correctly"
+            SEVERITY ERROR;
 
-        for i in 0 to 9 loop
-            pc <= std_logic_vector(to_unsigned(i, 16)); -- Set program counter
-            wait for clk_period;
-            assert instruction = std_logic_vector(to_unsigned(i, 16))
-            report "Instruction mismatch at PC=" & integer'image(i)
-            severity error;
-        end loop;
-        wait;
-    end process;
+        -- Add more test cases as needed
 
-end Behavioral;
+        WAIT;
+    END PROCESS;
+
+END Behavioral;

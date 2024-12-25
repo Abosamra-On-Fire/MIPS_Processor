@@ -19,7 +19,7 @@ ENTITY D_MEM IS
 END D_MEM;
 
 ARCHITECTURE Behavioral OF D_MEM IS
-    TYPE memory_array IS ARRAY (0 TO SIZE - 1) OF STD_LOGIC_VECTOR(31 DOWNTO 0);
+    TYPE memory_array IS ARRAY (0 TO SIZE - 1) OF STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL memory : memory_array := (OTHERS => (OTHERS => '0'));
 BEGIN
     PROCESS (clk)
@@ -28,17 +28,21 @@ BEGIN
             IF (mem_write = '1') THEN
                 IF (add_sel = '1') THEN
                     memory(to_integer(unsigned(stack))) <= Data;
-                    ELSE
+                ELSE
                     memory(to_integer(unsigned(alu))) <= Data;
                 END IF;
-            END IF;
-            IF (mem_read = '1') THEN
+
+            ELSIF (mem_read = '1') THEN
                 IF (add_sel = '1') THEN
                     Data_out <= memory(to_integer(unsigned(stack)));
-                    ELSE
+                ELSE
                     Data_out <= memory(to_integer(unsigned(alu)));
                 END IF;
+
+            ELSE
+                Data_out <= (OTHERS => '0');
             END IF;
+
         END IF;
     END PROCESS;
 END Behavioral;

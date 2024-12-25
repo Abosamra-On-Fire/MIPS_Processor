@@ -23,6 +23,8 @@ ARCHITECTURE Behavioral OF ALU IS
     SIGNAL car : STD_LOGIC := '0';
     SIGNAL neg : STD_LOGIC := '0';
     SIGNAL zer : STD_LOGIC := '0';
+    SIGNAL ones : STD_LOGIC := '1';
+
 BEGIN
 
     PROCESS (clk, reset)
@@ -32,6 +34,7 @@ BEGIN
         VARIABLE full_sum : UNSIGNED(16 DOWNTO 0); -- For addition carry
         VARIABLE full_diff : SIGNED(16 DOWNTO 0); -- For subtraction borrow
         VARIABLE temp_result : STD_LOGIC_VECTOR(15 DOWNTO 0);
+
     BEGIN
         IF reset = '1' THEN
             temp_result := (OTHERS => '0');
@@ -43,7 +46,7 @@ BEGIN
             temp_negative := neg;
             temp_zero := zer;
             temp_result := temp;
-            IF en = '1' THEN
+            IF en = '1' AND ones = '1' THEN
                 CASE OP IS
                     WHEN "000" => -- NOT
                         temp_result := NOT A;
@@ -106,7 +109,10 @@ BEGIN
                 car <= temp_carry;
                 neg <= temp_negative;
                 zer <= temp_zero;
+                ones <= '0';
 
+            ELSE
+                ones <= '1';
             END IF;
         END IF;
     END PROCESS;

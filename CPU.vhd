@@ -253,7 +253,7 @@ BEGIN
         read_data1 => rd1,
         read_data2 => rd2
     );
-    ID_EX_IN(70 DOWNTO 42) <= signals; -- 70 to 42 == 28 - 0
+    ID_EX_IN(70 DOWNTO 42) <= signals; -- 70 to 42 == 28 - 0 
     ID_EX_IN(127 DOWNTO 112) <= rd1;
     ID_EX_IN(111 DOWNTO 96) <= rd2;
     ID_EX_IN(95 DOWNTO 80) <= IF_ID_OUT(15 DOWNTO 0); --pc
