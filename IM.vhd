@@ -35,14 +35,12 @@ ARCHITECTURE Behavioral OF IM IS
     SIGNAL instruction_memory : memory_array := init_ram_bin;
 
 BEGIN
-    PROCESS (clk, reset)
+    PROCESS (clk, reset, location)
     BEGIN
         IF reset = '1' THEN
             instruction <= (OTHERS => '0');
-        ELSE
-            IF rising_edge(clk) THEN
-                instruction <= instruction_memory(to_integer(unsigned(location)));
-            END IF;
+            ELSE
+            instruction <= instruction_memory(to_integer(unsigned(location)));
         END IF;
     END PROCESS;
 

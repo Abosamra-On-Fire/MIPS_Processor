@@ -9,13 +9,16 @@ ARCHITECTURE behavior OF CPU_tb IS
 
     COMPONENT CPU IS
         PORT (
-            clk : IN STD_LOGIC;
-            reset : IN STD_LOGIC
+            clk, reset : IN STD_LOGIC;
+            out_port_data : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+            epc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
     END COMPONENT;
 
     SIGNAL clk : STD_LOGIC := '0';
     SIGNAL reset : STD_LOGIC := '0';
+    SIGNAL out_port_data : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL epc : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
 
     CONSTANT clk_period : TIME := 10 ns;
 
@@ -24,7 +27,9 @@ BEGIN
     uut : CPU
     PORT MAP(
         clk => clk,
-        reset => reset
+        reset => reset,
+        out_port_data => out_port_data,
+        epc => epc
     );
 
     clk_process : PROCESS

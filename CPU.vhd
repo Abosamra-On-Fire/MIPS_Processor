@@ -5,7 +5,8 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY CPU IS
     PORT (
         clk, reset : IN STD_LOGIC;
-        out_port_data : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+        out_port_data : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        epc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
 
     );
 END CPU;
@@ -13,35 +14,36 @@ END CPU;
 ARCHITECTURE Behavioral OF CPU IS
 
     -- CU signals
-    SIGNAL pc : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL pc_signals : STD_LOGIC_VECTOR(7 DOWNTO 0);
-    SIGNAL instr : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL signals : STD_LOGIC_VECTOR(28 DOWNTO 0);
-    SIGNAL rd1 : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL rd2 : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL alu_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL carry : STD_LOGIC;
-    SIGNAL negative : STD_LOGIC;
-    SIGNAL zero : STD_LOGIC;
-    SIGNAL branch : STD_LOGIC;
-    SIGNAL stack : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL flush : STD_LOGIC_VECTOR(3 DOWNTO 0);
-    SIGNAL exception_flage : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    SIGNAL mem_data_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL mem_address : STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL Data_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL pc : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL pc_signals : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL instr : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL signals : STD_LOGIC_VECTOR(28 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd1 : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd2 : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL alu_out : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL carry : STD_LOGIC := '0';
+    SIGNAL negative : STD_LOGIC := '0';
+    SIGNAL zero : STD_LOGIC := '0';
+    SIGNAL branch : STD_LOGIC := '0';
+    SIGNAL stack : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL flush : STD_LOGIC_VECTOR(3 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL exception_flage : STD_LOGIC_VECTOR(1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL mem_data_out : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL mem_address : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL Data_out : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
     -- Pipeline registers using the reg module
-    SIGNAL IF_ID_IN : STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL IF_ID_OUT : STD_LOGIC_VECTOR(31 DOWNTO 0);
-    SIGNAL ID_EX_IN : STD_LOGIC_VECTOR(127 DOWNTO 0);
-    SIGNAL ID_EX_OUT : STD_LOGIC_VECTOR(127 DOWNTO 0);
-    SIGNAL EX_MEM_IN : STD_LOGIC_VECTOR(127 DOWNTO 0);
-    SIGNAL EX_MEM_OUT : STD_LOGIC_VECTOR(127 DOWNTO 0);
-    SIGNAL MEM_WB_IN : STD_LOGIC_VECTOR(63 DOWNTO 0);
-    SIGNAL MEM_WB_OUT : STD_LOGIC_VECTOR(63 DOWNTO 0);
-    SIGNAL a : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    SIGNAL b : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    SIGNAL write_back : STD_LOGIC_VECTOR (15 DOWNTO 0);
+    SIGNAL IF_ID_IN : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL IF_ID_OUT : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ID_EX_IN : STD_LOGIC_VECTOR(127 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ID_EX_OUT : STD_LOGIC_VECTOR(127 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL EX_MEM_IN : STD_LOGIC_VECTOR(127 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL EX_MEM_OUT : STD_LOGIC_VECTOR(127 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL MEM_WB_IN : STD_LOGIC_VECTOR(63 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL MEM_WB_OUT : STD_LOGIC_VECTOR(63 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL a : STD_LOGIC_VECTOR(1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL b : STD_LOGIC_VECTOR(1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL write_back : STD_LOGIC_VECTOR (15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL Rs1 : STD_LOGIC_VECTOR (15 DOWNTO 0) := (OTHERS => '0');
     -- reg component for pipeline registers
     COMPONENT reg IS
         GENERIC (
@@ -52,7 +54,9 @@ ARCHITECTURE Behavioral OF CPU IS
             Data_in : IN STD_LOGIC_VECTOR(SIZE - 1 DOWNTO 0);
             en : IN STD_LOGIC;
             rst : IN STD_LOGIC;
-            Data_out : OUT STD_LOGIC_VECTOR(SIZE - 1 DOWNTO 0)
+            Data_out : OUT STD_LOGIC_VECTOR(SIZE - 1 DOWNTO 0);
+            flage_flush : IN STD_LOGIC
+
         );
     END COMPONENT reg;
 
@@ -109,9 +113,11 @@ ARCHITECTURE Behavioral OF CPU IS
             clk : IN STD_LOGIC;
             reset : IN STD_LOGIC;
             signals : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-            epc : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            pc_ex : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            pc_mem : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
             Rd1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
             Index : IN STD_LOGIC;
+            epc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
             Rsrc1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
             WB : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
             pc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
@@ -154,7 +160,9 @@ ARCHITECTURE Behavioral OF CPU IS
             out_port_data : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
             data_to_mem : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
             data_to_mem_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-            stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+            stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+            Rs1 : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+
         );
     END COMPONENT EX;
     COMPONENT D_MEM IS
@@ -179,17 +187,21 @@ BEGIN
     pc_signals(2) <= signals(24);
     pc_signals(3) <= signals(23);
     pc_signals(4) <= signals(22);
+    pc_signals(6 DOWNTO 5) <= exception_flage;
+    pc_signals(7) <= signals(28);
     pc_inst : PC_UNIT
     PORT MAP(
-        clk : IN STD_LOGIC;
-        reset : IN STD_LOGIC;
-        signals : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-        epc : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        Rd1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        Index : IN STD_LOGIC;
-        Rsrc1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        WB : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        pc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+        clk => clk,
+        reset => reset,
+        signals => pc_signals,
+        pc_ex => EX_MEM_OUT(127 DOWNTO 112),
+        pc_mem => MEM_WB_IN(51 DOWNTO 36),
+        Rd1 => rd1,
+        Index => IF_ID_OUT(0),
+        epc => epc,
+        Rsrc1 => Rs1,
+        WB => write_back,
+        pc => pc
     );
     IF_ID_IN(15 DOWNTO 0) <= pc;
 
@@ -298,7 +310,8 @@ BEGIN
         data_to_mem => ID_EX_OUT(44 DOWNTO 43),
 
         data_to_mem_out => mem_data_out,
-        stack_pointer => stack
+        stack_pointer => stack,
+        Rs1 => Rs1
     );
 
     EX_MEM_IN(63 DOWNTO 48) <= alu_out;
@@ -327,18 +340,18 @@ BEGIN
         flage_flush => flush(1)
     );
     ------------------------------------------
-    d_mem : D_MEM
-    GENERIC (
-        SIZE : INTEGER := 4096
-    );
+    data_mem : D_MEM
+    GENERIC MAP(
+        SIZE => 4096
+    )
     PORT MAP(
-        Data => EX_MEM_OUT(38 DOWNTO 23);
-        stack => EX_MEM_OUT(22 DOWNTO 7);
-        alu => EX_MEM_OUT(63 DOWNTO 48);
-        add_sel => EX_MEM_OUT(54);
-        mem_write => EX_MEM_OUT(44);
-        mem_read => EX_MEM_OUT(45);
-        clk => clk;
+        Data => EX_MEM_OUT(38 DOWNTO 23),
+        stack => EX_MEM_OUT(22 DOWNTO 7),
+        alu => EX_MEM_OUT(63 DOWNTO 48),
+        add_sel => EX_MEM_OUT(54),
+        mem_write => EX_MEM_OUT(44),
+        mem_read => EX_MEM_OUT(45),
+        clk => clk,
         Data_out => Data_out
     );
     -----------------------------------------
@@ -348,7 +361,7 @@ BEGIN
     MEM_WB_IN(35 DOWNTO 20) <= Data_out;
     MEM_WB_IN(36) <= EX_MEM_OUT(47); --mem to reg
     MEM_WB_IN(37) <= EX_MEM_OUT(6); --ret/rti
-    MEM_WB_IN(51 DOWNTO 36) <= EX_MEM_OUT(127 DOWNTO 112);
+    MEM_WB_IN(51 DOWNTO 36) <= EX_MEM_OUT(127 DOWNTO 112); --pc
 
     MEM_WB_reg : reg
     GENERIC MAP(
@@ -362,24 +375,24 @@ BEGIN
         Data_out => MEM_WB_OUT,
         flage_flush => flush(0)
     );
-    wb : WB
+    writeb : WB
     PORT MAP(
-        alu => MEM_WB_OUT(16 DOWNTO 1);
-        data => MEM_WB_OUT(35 DOWNTO 20);
-        mem_reg => MEM_WB_IN(36);
+        alu => MEM_WB_OUT(16 DOWNTO 1),
+        data => MEM_WB_OUT(35 DOWNTO 20),
+        mem_reg => MEM_WB_IN(36),
         write_back => write_back
 
     );
 
-    fu : FU
+    forwardu : FU
     PORT MAP(
-        R1 => ID_EX_IN(76 DOWNTO 74);
-        R2 => ID_EX_IN(73 DOWNTO 71);
-        ex_reg_write => EX_MEM_OUT(46);
-        mem_reg_write => MEM_WB_IN(0);
-        ex_rd => EX_MEM_OUT(42 DOWNTO 40);
-        mem_rd => MEM_WB_OUT(19 DOWNTO 17);
-        a => a;
+        R1 => ID_EX_IN(76 DOWNTO 74),
+        R2 => ID_EX_IN(73 DOWNTO 71),
+        ex_reg_write => EX_MEM_OUT(46),
+        mem_reg_write => MEM_WB_IN(0),
+        ex_rd => EX_MEM_OUT(42 DOWNTO 40),
+        mem_rd => MEM_WB_OUT(19 DOWNTO 17),
+        a => a,
         b => b
     );
     -- Output connections
