@@ -40,7 +40,7 @@ BEGIN
 
                 CASE opcode IS
                     WHEN "00001" =>
-                        signals(0) <= '1';
+                        flush(3) <= '1';
                         signals(24) <= '1';
                     WHEN "00010" =>
                         signals(26 DOWNTO 25) <= "11";
@@ -105,32 +105,32 @@ BEGIN
                         signals(5 DOWNTO 3) <= "110";
                     WHEN "10100" =>
                         signals(22) <= '1';
-                        signals(0) <= '1';
+                        flush(3) <= '1';
                     WHEN "10101" =>
-                        signals(0) <= '1';
+                        flush(3) <= '1';
                         signals(2 DOWNTO 1) <= "01";
                         signals(8) <= '1';
                         signals(15 DOWNTO 14) <= "11";
                     WHEN "10110" =>
                         signals(8) <= '1';
                         signals(27) <= '1';
-                        signals(0) <= '1';
+                        flush(3) <= '1';
                         signals(10) <= '1';
                         signals(18 DOWNTO 14) <= "10101";
                     WHEN "10111" =>
                         signals(23) <= '1';
-                        signals(0) <= '1';
+                        flush(3) <= '1';
                         signals(2 DOWNTO 1) <= "01";
                         signals(8) <= '1';
                         signals(15 DOWNTO 14) <= "11";
                     WHEN "11000" =>
                         signals(8) <= '1';
                         signals(27) <= '1';
-                        signals(0) <= '1';
+                        flush(3) <= '1';
                         signals(10) <= '1';
                         signals(18 DOWNTO 14) <= "10101";
                     WHEN "11001" =>
-                        signals(0) <= '1';
+                        flush(3) <= '1';
                         signals(28) <= '1';
                         signals(21 DOWNTO 19) <= "111";
                     WHEN OTHERS =>
@@ -143,7 +143,7 @@ BEGIN
                 ELSIF (exception = '1') THEN
                 IF (type_siganl = '0') THEN
                     flush <= "1100";
-                    exception_flage <= "01";
+                    exception_flage <= "10";
 
                     ELSE
                     flush <= "1110";

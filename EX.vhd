@@ -25,7 +25,7 @@ ENTITY EX IS
         data_to_mem : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         data_to_mem_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         stack_pointer : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-        Rs1 : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        Rs1 : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
 
     );
 END EX;

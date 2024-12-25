@@ -14,6 +14,7 @@ ARCHITECTURE Behavioral OF CPU IS
 
     -- CU signals
     SIGNAL pc : STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL pc_signals : STD_LOGIC_VECTOR(7 DOWNTO 0);
     SIGNAL instr : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL signals : STD_LOGIC_VECTOR(28 DOWNTO 0);
     SIGNAL rd1 : STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -34,8 +35,8 @@ ARCHITECTURE Behavioral OF CPU IS
     SIGNAL IF_ID_OUT : STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL ID_EX_IN : STD_LOGIC_VECTOR(127 DOWNTO 0);
     SIGNAL ID_EX_OUT : STD_LOGIC_VECTOR(127 DOWNTO 0);
-    SIGNAL EX_MEM_IN : STD_LOGIC_VECTOR(63 DOWNTO 0);
-    SIGNAL EX_MEM_OUT : STD_LOGIC_VECTOR(63 DOWNTO 0);
+    SIGNAL EX_MEM_IN : STD_LOGIC_VECTOR(127 DOWNTO 0);
+    SIGNAL EX_MEM_OUT : STD_LOGIC_VECTOR(127 DOWNTO 0);
     SIGNAL MEM_WB_IN : STD_LOGIC_VECTOR(63 DOWNTO 0);
     SIGNAL MEM_WB_OUT : STD_LOGIC_VECTOR(63 DOWNTO 0);
     SIGNAL a : STD_LOGIC_VECTOR(1 DOWNTO 0);
@@ -173,12 +174,22 @@ ARCHITECTURE Behavioral OF CPU IS
     END COMPONENT;
 
 BEGIN
+    pc_signals(0) <= MEM_WB_OUT(37);
+    pc_signals(1) <= branch;
+    pc_signals(2) <= signals(24);
+    pc_signals(3) <= signals(23);
+    pc_signals(4) <= signals(22);
     pc_inst : PC_UNIT
     PORT MAP(
-        clk => clk,
-        reset => reset,
-        signals => signals(24 DOWNTO 22),
-        pc => pc
+        clk : IN STD_LOGIC;
+        reset : IN STD_LOGIC;
+        signals : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+        epc : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        Rd1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        Index : IN STD_LOGIC;
+        Rsrc1 : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        WB : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        pc : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
     );
     IF_ID_IN(15 DOWNTO 0) <= pc;
 
@@ -300,10 +311,12 @@ BEGIN
     EX_MEM_IN(39) <= branch;
     EX_MEM_IN(38 DOWNTO 23) <= mem_data_out;
     EX_MEM_IN(22 DOWNTO 7) <= stack;
+    EX_MEM_IN(6) <= ID_EX_OUT(69); --ret/rti
+    EX_MEM_IN(127 DOWNTO 112) <= ID_EX_OUT(95 DOWNTO 80); --pc
     -- EX/MEM Register (pipeline register between EX and MEM stages)
     EX_MEM_reg : reg
     GENERIC MAP(
-        SIZE => 64
+        SIZE => 128
     )
     PORT MAP(
         clk => clk,
@@ -334,6 +347,8 @@ BEGIN
     MEM_WB_IN(19 DOWNTO 17) <= EX_MEM_OUT(42 DOWNTO 40); --rd add
     MEM_WB_IN(35 DOWNTO 20) <= Data_out;
     MEM_WB_IN(36) <= EX_MEM_OUT(47); --mem to reg
+    MEM_WB_IN(37) <= EX_MEM_OUT(6); --ret/rti
+    MEM_WB_IN(51 DOWNTO 36) <= EX_MEM_OUT(127 DOWNTO 112);
 
     MEM_WB_reg : reg
     GENERIC MAP(
